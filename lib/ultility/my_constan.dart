@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyConstant {
   // Genernal 
-  static String appName = 'Shopping Mall';
+  static String appName = 'Miragez Project';
 
   // Route
   static String routeAuthen = '/authen';
@@ -16,11 +16,12 @@ class MyConstant {
   static String image2 = 'images/image2.png';
   static String image3 = 'images/image3.png';
   static String image4 = 'images/image4.png';
+  static String image5 = 'images/image5.png';
 
   //Color
-  static Color primary = Color(0xff87861d);
-  static Color dark = Color(0xff575900);
-  static Color light = Color(0xffb9b64e);
+  static Color primary = Color(0xff01579b);
+  static Color dark = Color(0xff4f83cc);
+  static Color light = Color(0xff002f6c);
   
   // style
   TextStyle h1Style() => TextStyle(
@@ -39,4 +40,10 @@ class MyConstant {
     fontWeight: FontWeight.normal,
   );
 
+  ButtonStyle myButtonStyle() => ElevatedButton.styleFrom(
+              primary: MyConstant.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            );
 }
