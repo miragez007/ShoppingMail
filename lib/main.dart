@@ -9,9 +9,9 @@ import 'package:shoppingmall/ultility/my_constan.dart';
 final Map<String, WidgetBuilder> map = {
   '/authen' : (BuildContext context)=>Authen(),
   '/creatAccount':(BuildContext context)=> CreateAccoun(),
-  'buyerService': (BuildContext context)=> BuyerService(),
-  'salerService':(BuildContext context)=> SelerService(),
-  'riderService':(BuildContext context)=> RiderService(),
+  '/buyerService': (BuildContext context)=> BuyerService(),
+  '/salerService':(BuildContext context)=> SelerService(),
+  '/riderService':(BuildContext context)=> RiderService(),
 };
 
 String? initlalRoute;

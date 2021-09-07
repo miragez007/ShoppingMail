@@ -7,9 +7,9 @@ class MyConstant {
   // Route
   static String routeAuthen = '/authen';
   static String routeCreateAccount = '/creatAccount';
-  static String routeBuyerService = 'buyerService';
-  static String routeSalerService = 'salerService';
-  static String routeRiderService = 'riderService';
+  static String routeBuyerService = '/buyerService';
+  static String routeSalerService = '/salerService';
+  static String routeRiderService = '/riderService';
 
   //image
   static String image1 = 'images/image1.png';
@@ -17,6 +17,7 @@ class MyConstant {
   static String image3 = 'images/image3.png';
   static String image4 = 'images/image4.png';
   static String image5 = 'images/image5.png';
+  static String avatar = 'images/avatar.png';
 
   //Color
   static Color primary = Color(0xff01579b);
