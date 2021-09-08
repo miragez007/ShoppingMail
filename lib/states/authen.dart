@@ -63,6 +63,7 @@ class _AuthenState extends State<Authen> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildUser(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -91,6 +92,7 @@ class _AuthenState extends State<Authen> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildPassword(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -147,6 +149,7 @@ class _AuthenState extends State<Authen> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildImage(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

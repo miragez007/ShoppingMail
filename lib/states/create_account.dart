@@ -1,9 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoppingmall/ultility/my_constan.dart';
+import 'package:shoppingmall/ultility/my_dialog.dart';
 import 'package:shoppingmall/widgets/show_image.dart';
+import 'package:shoppingmall/widgets/show_prograess.dart';
 import 'package:shoppingmall/widgets/show_title.dart';
 
 class CreateAccoun extends StatefulWidget {
@@ -16,7 +21,76 @@ class CreateAccoun extends StatefulWidget {
 class _CreateAccounState extends State<CreateAccoun> {
   String? typeUser;
   File? file;
+  double? lat, lng;
+  final formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    checkPermission();
+  }
+
+  Future<Null> checkPermission() async {
+    bool locationService;
+    LocationPermission locationPermission;
+
+    locationService = await Geolocator.isLocationServiceEnabled();
+    if (locationService) {
+      print('Service Location Open');
+
+      locationPermission = await Geolocator.checkPermission();
+      if (locationPermission == LocationPermission.denied) {
+        locationPermission = await Geolocator.requestPermission();
+        if (locationPermission == LocationPermission.deniedForever) {
+          MyDialog().alertLocationService(
+            context,
+            'ไม่อนุญาติแชร์ Location',
+            'โปรดแชร์ Location',
+          );
+        } else {
+          // find latlng
+          findLatLng();
+        }
+      } else {
+        if (locationPermission == LocationPermission.deniedForever) {
+          MyDialog().alertLocationService(
+            context,
+            'ไม่อนุญาติแชร์ Location',
+            'โปรดแชร์ Location',
+          );
+        } else {
+          // find latlng
+          findLatLng();
+        }
+      }
+    } else {
+      print('Service Location Close');
+      MyDialog().alertLocationService(
+          context, 'Location Service ปิดอยู่ ?', 'กรุณาเปิด Service ด้วยคะ');
+    }
+  }
+
+  Future<Null> findLatLng() async {
+    print('findLatLan ==> Work');
+    Position? position = await findPostion();
+    setState(() {
+      lat = position!.latitude;
+      lng = position.longitude;
+      print('lat = $lat, lng = $lng');
+    });
+  }
+
+  Future<Position?> findPostion() async {
+    Position position;
+    try {
+      position = await Geolocator.getCurrentPosition();
+      return position;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ignore: non_constant_identifier_names
   Row BuildName(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -24,7 +98,12 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextField(
+          child: TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'กรุณากรอก Name ด้วยคะ';
+              } else {}
+            },
             decoration: InputDecoration(
               labelStyle: MyConstant().h3Style(),
               labelText: "Name",
@@ -45,6 +124,7 @@ class _CreateAccounState extends State<CreateAccoun> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildAddress(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -52,7 +132,12 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextField(
+          child: TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'กรุณากรอก Address ด้วยคะ';
+              } else {}
+            },
             maxLines: 4,
             decoration: InputDecoration(
               hintText: 'Address',
@@ -77,6 +162,7 @@ class _CreateAccounState extends State<CreateAccoun> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildPhone(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -84,7 +170,12 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextField(
+          child: TextFormField(keyboardType: TextInputType.phone,
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'กรุณากรอก Phone ด้วยคะ';
+              } else {}
+            },
             decoration: InputDecoration(
               labelStyle: MyConstant().h3Style(),
               labelText: "Phone",
@@ -105,6 +196,7 @@ class _CreateAccounState extends State<CreateAccoun> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildUser(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -112,7 +204,12 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextField(
+          child: TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'กรุณากรอก User ด้วยคะ';
+              } else {}
+            },
             decoration: InputDecoration(
               labelStyle: MyConstant().h3Style(),
               labelText: "User",
@@ -133,6 +230,7 @@ class _CreateAccounState extends State<CreateAccoun> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Row BuildPassword(double size) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -140,7 +238,12 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextField(
+          child: TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'กรุณากรอก Password ด้วยคะ';
+              } else {}
+            },
             decoration: InputDecoration(
               labelStyle: MyConstant().h3Style(),
               labelText: "Password",
@@ -166,78 +269,97 @@ class _CreateAccounState extends State<CreateAccoun> {
     double size = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          buildCreateNewAccount(),
+        ],
         title: Text("Create New Account"),
         backgroundColor: MyConstant.primary,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
         behavior: HitTestBehavior.opaque,
-        child: ListView(
-          padding: EdgeInsets.all(16),
-          children: [
-            buildTitle("ข้อมูลทั่วไป"),
-            BuildName(size),
-            buildTitle("ชนิดของ User"),
-            buildRadioBuyer(size),
-            buildRadioSeller(size),
-            buildRadioRider(size),
-            buildTitle("ข้อมูลพื้นฐาน"),
-            BuildAddress(size),
-            BuildPhone(size),
-            BuildUser(size),
-            BuildPassword(size),
-            buildTitle("รูปภาพ"),
-            buildSubTitle(),
-            buildAvatar(size),
-          ],
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                buildTitle("ข้อมูลทั่วไป"),
+                BuildName(size),
+                buildTitle("ชนิดของ User"),
+                buildRadioBuyer(size),
+                buildRadioSeller(size),
+                buildRadioRider(size),
+                buildTitle("ข้อมูลพื้นฐาน"),
+                BuildAddress(size),
+                BuildPhone(size),
+                BuildUser(size),
+                BuildPassword(size),
+                buildTitle("รูปภาพ"),
+                buildSubTitle(),
+                buildAvatar(size),
+                buildTitle('แสดงพิกัดที่ คุณอยู่'),
+                buildMap(),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  /* Future<void> chooseImage(ImageSource imageSource)async{
-            try {
-      var result = await ImagePicker.(
-        source: imageSource,
-        maxHeight: 800.0 ,
-        maxWidth: 800.0);
-    } catch (e) {
-    }
+  IconButton buildCreateNewAccount() {
+    return IconButton(
+          onPressed: () {
+            if (formKey.currentState!.validate()) {
+             if (typeUser == null) {
+              print('Non Choose Type User');
+              MyDialog().normalDialog(context, 'ยังไม่ได้เลือกชนิดของ User', 'กรุณา tap ที่ ชนิดของ User ที่ต้องการ');
+            } else {
+              print('Process Inser to Database');
+            } 
+          }
+        },
+          icon: Icon(Icons.cloud_upload),
+        );
+  }
 
+  Set<Marker> setMarker() => <Marker>[
+        Marker(
+          markerId: MarkerId('id'),
+          position: LatLng(lat!, lng!),
+          infoWindow: InfoWindow(
+              title: 'คุณอยู่ที่นี่', snippet: 'Lat = $lat, Lng = $lng'),
+        ),
+      ].toSet();
 
+  Widget buildMap() => Container(
+        width: double.infinity,
+        height: 300,
+        child: lat == null
+            ? ShowProgress()
+            : GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(lat!, lng!),
+                  zoom: 16,
+                ),
+                onMapCreated: (controller) {},
+                markers: setMarker(),
+              ),
+      );
 
-  }*/
-
-  Future<void> chooseImage(ImageSource imageSource)async{
+  Future<void> chooseImage(ImageSource imageSource) async {
     try {
-      var result = await ImagePicker().getImage
-      (source: imageSource,
+      // ignore: deprecated_member_use
+      var result = await ImagePicker().getImage(
+        source: imageSource,
         maxHeight: 800.0,
         maxWidth: 800.0,
       );
       setState(() {
         file = File(result!.path);
       });
-
-    } catch (e) {
-    }
-
-
-  }
-    
-
-    
-    /* try {
-      var result = await ImagePicker().getImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        );
-        setState(() {
-          file = file(result.path)
-        });
     } catch (e) {}
-  } */
+  }
 
   Row buildAvatar(double size) {
     return Row(
@@ -255,7 +377,9 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.symmetric(vertical: 16),
           width: size * 0.6,
-          child: file == null ? ShowImage(path: MyConstant.avatar) : Image.file(file!) ,
+          child: file == null
+              ? ShowImage(path: MyConstant.avatar)
+              : Image.file(file!),
         ),
         IconButton(
           onPressed: () => chooseImage(ImageSource.gallery),
