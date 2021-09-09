@@ -10,7 +10,9 @@ class SelerService extends StatefulWidget {
 class _SelerServiceState extends State<SelerService> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(appBar: AppBar(
+        title: Text('Seler'),
+      ),
       
     );
   }

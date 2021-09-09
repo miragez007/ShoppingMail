@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,9 +23,15 @@ class CreateAccoun extends StatefulWidget {
 
 class _CreateAccounState extends State<CreateAccoun> {
   String? typeUser;
+  String avatar = '';
   File? file;
   double? lat, lng;
   final formKey = GlobalKey<FormState>();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController userController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -99,6 +108,7 @@ class _CreateAccounState extends State<CreateAccoun> {
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
           child: TextFormField(
+            controller: nameController,
             validator: (value) {
               if (value!.isEmpty) {
                 return 'กรุณากรอก Name ด้วยคะ';
@@ -133,6 +143,7 @@ class _CreateAccounState extends State<CreateAccoun> {
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
           child: TextFormField(
+            controller: addressController,
             validator: (value) {
               if (value!.isEmpty) {
                 return 'กรุณากรอก Address ด้วยคะ';
@@ -170,7 +181,9 @@ class _CreateAccounState extends State<CreateAccoun> {
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextFormField(keyboardType: TextInputType.phone,
+          child: TextFormField(
+            controller: phoneController,
+            keyboardType: TextInputType.phone,
             validator: (value) {
               if (value!.isEmpty) {
                 return 'กรุณากรอก Phone ด้วยคะ';
@@ -205,6 +218,7 @@ class _CreateAccounState extends State<CreateAccoun> {
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
           child: TextFormField(
+            controller: userController,
             validator: (value) {
               if (value!.isEmpty) {
                 return 'กรุณากรอก User ด้วยคะ';
@@ -239,6 +253,7 @@ class _CreateAccounState extends State<CreateAccoun> {
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
           child: TextFormField(
+            controller: passwordController,
             validator: (value) {
               if (value!.isEmpty) {
                 return 'กรุณากรอก Password ด้วยคะ';
@@ -309,18 +324,96 @@ class _CreateAccounState extends State<CreateAccoun> {
 
   IconButton buildCreateNewAccount() {
     return IconButton(
-          onPressed: () {
-            if (formKey.currentState!.validate()) {
-             if (typeUser == null) {
-              print('Non Choose Type User');
-              MyDialog().normalDialog(context, 'ยังไม่ได้เลือกชนิดของ User', 'กรุณา tap ที่ ชนิดของ User ที่ต้องการ');
-            } else {
-              print('Process Inser to Database');
-            } 
+      onPressed: () {
+        if (formKey.currentState!.validate()) {
+          if (typeUser == null) {
+            print('Non Choose Type User');
+            MyDialog().normalDialog(context, 'ยังไม่ได้เลือกชนิดของ User',
+                'กรุณา tap ที่ ชนิดของ User ที่ต้องการ');
+          } else {
+            print('Process Inser to Database');
+            uploadPictureAndInserData();
           }
-        },
-          icon: Icon(Icons.cloud_upload),
-        );
+        }
+      },
+      icon: Icon(Icons.cloud_upload),
+    );
+  }
+
+  Future<Null> uploadPictureAndInserData() async {
+    String name = nameController.text;
+    String address = addressController.text;
+    String phone = phoneController.text;
+    String user = userController.text;
+    String password = passwordController.text;
+    print(
+        '## name = $name, address =$address , phone = $phone, user = $user,password = $password');
+    String path =
+        '${MyConstant.domain}/shoppingmall/getUserWhereUser.php?isAdd=true&user=$user';
+    await Dio().get(path).then((value) async {
+      // => print('## value ==>> $value'));
+      print('## value ==>> $value');
+
+      if (value.toString() == 'null') {
+        print('## user OK');
+
+        if (file == null) {
+          // no avatar
+          processInsertMySQL(
+              name: name,
+              address: address,
+              phone: phone,
+              user: user,
+              password: password);
+        } else {
+          // have avatar
+          print('### process upload Avatar');
+          String apiSaveAvatar =
+              '${MyConstant.domain}/shoppingmall/saveAvatar.php';
+          int i = Random().nextInt(100000);
+          String nameAvatar = 'avatar$i.jpg';
+          Map<String, dynamic> map = Map();
+          map['file'] =
+              await MultipartFile.fromFile(file!.path, filename: nameAvatar);
+          FormData data = FormData.fromMap(map);
+
+          await Dio().post(apiSaveAvatar, data: data).then((value) {
+            avatar = '/shoppingmall/avatar/$nameAvatar';
+            processInsertMySQL(
+              name: name,
+              address: address,
+              phone: phone,
+              user: user,
+              password: password
+              ,
+            );
+          });
+        }
+      } else {
+        MyDialog().normalDialog(context, 'User False ?', 'Please Change User');
+      }
+    });
+  }
+
+  Future<Null> processInsertMySQL(
+    {String? name,
+    String? address,
+    String? phone,
+    String? user,
+    String? password,    
+    }) async {
+    print('### processInsertMySQL work and avatar ==>> $avatar');
+    
+    String apiInsertUser =
+        '${MyConstant.domain}/shoppingmall/insertUser.php?isAdd=true&name=$name&type=$typeUser&address=$address&phone=$phone&user=$user&password=$password&avatar=$avatar&lat=$lat&lng=$lng';
+    await Dio().get(apiInsertUser).then((value) {
+      if (value.toString() == 'true') {
+        Navigator.pop(context);
+      } else {
+        MyDialog().normalDialog(
+            context, 'Creat New User False!!!', 'Plase Try Again');
+      }
+    });
   }
 
   Set<Marker> setMarker() => <Marker>[
